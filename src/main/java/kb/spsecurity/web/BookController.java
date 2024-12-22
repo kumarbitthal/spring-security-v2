@@ -1,5 +1,6 @@
 package kb.spsecurity.web;
 
+import kb.spsecurity.dto.ApiResponse;
 import kb.spsecurity.model.Book;
 import kb.spsecurity.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,32 +23,37 @@ public class BookController {
 
     // GET: "/book" - Accessible by ROLE_USER or ROLE_ADMIN
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<Book>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getAllBooks());
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<List<Book>>> getAllBooks() {
+        List<Book> books = bookService.getAllBooks();
+        ApiResponse<List<Book>> response = new ApiResponse<>(books, true);
+        return ResponseEntity.ok(response);
     }
 
     // POST: "/book" - Accessible by ROLE_ADMIN
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Book> createBook(@RequestBody Book book) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<Book>> createBook(@RequestBody Book book) {
         Book savedBook = bookService.createBook(book);
-        return ResponseEntity.ok(savedBook);
+        ApiResponse<Book> response = new ApiResponse<>(savedBook, true);
+        return ResponseEntity.ok(response);
     }
 
     // PUT: "/book" - Accessible by ROLE_ADMIN
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<Book>> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
         Book updatedBook = bookService.updateBook(id, bookDetails);
-        return ResponseEntity.ok(updatedBook);
+        ApiResponse<Book> response = new ApiResponse<>(updatedBook, true);
+        return ResponseEntity.ok(response);
     }
 
     // DELETE: "/book" - Accessible by ROLE_ADMIN
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
+        ApiResponse<Void> response = new ApiResponse<>(null, true);
+        return ResponseEntity.ok(response);
     }
 }

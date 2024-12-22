@@ -1,5 +1,7 @@
 package kb.spsecurity.web;
 
+import kb.spsecurity.dto.ApiResponse;
+import kb.spsecurity.dto.AuthRequest;
 import kb.spsecurity.util.Constants;
 import kb.spsecurity.util.JwtUtils;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,11 +28,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> credentials) {
+    public ApiResponse<Map<String, String>> login(@RequestBody AuthRequest authRequest) {
         Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(credentials.get(Constants.USER_NAME),
-                        credentials.get(Constants.PASSWORD)));
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
+                        authRequest.getPassword()));
+
         String token = jwtUtils.generateToken(authentication.getName());
-        return Map.of(Constants.TOKEN, token);
+
+        Map<String, String> responseData = Map.of(Constants.TOKEN, token);
+        ApiResponse<Map<String, String>> response = new ApiResponse<>(responseData, true);
+        return response;
     }
 }
